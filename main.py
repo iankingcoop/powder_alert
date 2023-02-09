@@ -1,10 +1,11 @@
 import requests
 import os
 from twilio.rest import Client
+from datetime import datetime
 
 
-Datetimez = []
-Details = ""
+datetimez = []
+formatted_timez = []
 
 # weather API
 api_key = os.environ["WEATHER_KEY"]
@@ -17,9 +18,14 @@ auth_token = os.environ["TWILIO_AUTH_TOKEN"]
 client = Client(account_sid, auth_token)
 
 # send_message "Snow on the way! Expected around: {DT}"
-def send_message(Datetimez):
+def send_message(datetimez):
+    for i in datetimez:
+        i = datetime.strptime(i, '%Y-%m-%d %H:%M:%S')
+        i = i.strftime('%A, %H:%M:%S')
+        formatted_timez.append(i)
+        print(formatted_timez)
     message = client.messages.create(
-        body=f"Snow on the way in the next 3 days! Expected snowfalls hours: \n\n{Datetimez}",
+        body=f"Snow on the way in the next 3 days! Expected snowfalls hours: \n\n{formatted_timez}",
         from_="+18556475303",
         to="+17036775244"
     )
@@ -63,10 +69,10 @@ will_snow = False
 for i in weather_data['list'][:23]:
     if 'snow' in i['weather'][0]['main'].lower():
         print('Snow on the way!')
-        Datetimez.append(weather_data['list'][weather_data['list'].index(i)]['dt_txt'])
+        datetimez.append(weather_data['list'][weather_data['list'].index(i)]['dt_txt'])
         will_snow = True
-        print(Datetimez)
+        print(datetimez)
 
 
 if will_snow == True:
-    send_message(Datetimez)
+    send_message(datetimez)
